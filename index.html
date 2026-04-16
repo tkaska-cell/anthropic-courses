@@ -1,0 +1,898 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Anthropic Courses - Video Library</title>
+<style>
+  :root {
+    --bg: #0f1117;
+    --surface: #1a1d27;
+    --surface2: #232736;
+    --border: #2d3148;
+    --text: #e4e6f0;
+    --text2: #9ba1b8;
+    --accent: #d4a574;
+    --accent2: #c4956a;
+    --tag-claude-code: #6ba3d6;
+    --tag-model: #d6886b;
+    --tag-feature: #8bd6a3;
+    --tag-dev: #d6c56b;
+    --tag-mcp: #b68bd6;
+    --tag-usecase: #d68ba3;
+    --tag-safety: #6bd6c5;
+    --tag-edu: #d6b68b;
+    --tag-guide: #8baed6;
+    --tag-brand: #c5d66b;
+    --tag-experiment: #d66b8b;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans JP', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.6;
+  }
+  header {
+    background: linear-gradient(135deg, #1a1d27 0%, #232736 100%);
+    border-bottom: 1px solid var(--border);
+    padding: 2rem 1.5rem 1.5rem;
+    text-align: center;
+  }
+  header h1 {
+    font-size: 1.6rem;
+    font-weight: 700;
+    color: var(--accent);
+    margin-bottom: 0.3rem;
+  }
+  header p {
+    color: var(--text2);
+    font-size: 0.9rem;
+  }
+  .stats {
+    display: flex;
+    justify-content: center;
+    gap: 2rem;
+    margin-top: 1rem;
+    font-size: 0.85rem;
+    color: var(--text2);
+  }
+  .stats span strong { color: var(--accent); font-size: 1.1rem; }
+  .controls {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: var(--bg);
+    border-bottom: 1px solid var(--border);
+    padding: 0.8rem 1.5rem;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    align-items: center;
+  }
+  .search-box {
+    flex: 1;
+    min-width: 200px;
+    padding: 0.5rem 0.8rem;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    color: var(--text);
+    font-size: 0.9rem;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  .search-box:focus { border-color: var(--accent); }
+  .search-box::placeholder { color: var(--text2); }
+  .filter-btn {
+    padding: 0.35rem 0.7rem;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    color: var(--text2);
+    font-size: 0.75rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    white-space: nowrap;
+  }
+  .filter-btn:hover { border-color: var(--accent); color: var(--text); }
+  .filter-btn.active { background: var(--accent); color: var(--bg); border-color: var(--accent); font-weight: 600; }
+  .container { max-width: 1000px; margin: 0 auto; padding: 1.5rem; }
+  .video-list { display: flex; flex-direction: column; gap: 1rem; }
+  .video-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 1.2rem;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .video-card:hover { border-color: var(--accent); transform: translateY(-1px); }
+  .video-card.expanded { border-color: var(--accent); }
+  .card-header {
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+  .card-date {
+    min-width: 80px;
+    font-size: 0.75rem;
+    color: var(--text2);
+    padding-top: 0.15rem;
+  }
+  .card-body { flex: 1; }
+  .card-title {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: var(--text);
+    margin-bottom: 0.3rem;
+  }
+  .card-title-en {
+    font-size: 0.75rem;
+    color: var(--text2);
+    margin-bottom: 0.4rem;
+  }
+  .card-tag {
+    display: inline-block;
+    padding: 0.15rem 0.5rem;
+    border-radius: 10px;
+    font-size: 0.7rem;
+    font-weight: 600;
+    margin-right: 0.3rem;
+  }
+  .tag-claude-code { background: rgba(107,163,214,0.15); color: var(--tag-claude-code); }
+  .tag-model { background: rgba(214,136,107,0.15); color: var(--tag-model); }
+  .tag-feature { background: rgba(139,214,163,0.15); color: var(--tag-feature); }
+  .tag-dev { background: rgba(214,197,107,0.15); color: var(--tag-dev); }
+  .tag-mcp { background: rgba(182,139,214,0.15); color: var(--tag-mcp); }
+  .tag-usecase { background: rgba(214,139,163,0.15); color: var(--tag-usecase); }
+  .tag-safety { background: rgba(107,214,197,0.15); color: var(--tag-safety); }
+  .tag-edu { background: rgba(214,182,139,0.15); color: var(--tag-edu); }
+  .tag-guide { background: rgba(139,174,214,0.15); color: var(--tag-guide); }
+  .tag-brand { background: rgba(197,214,107,0.15); color: var(--tag-brand); }
+  .tag-experiment { background: rgba(214,107,139,0.15); color: var(--tag-experiment); }
+  .card-summary {
+    font-size: 0.85rem;
+    color: var(--text2);
+    margin-top: 0.5rem;
+    line-height: 1.7;
+  }
+  .card-player {
+    margin-top: 1rem;
+    display: none;
+  }
+  .card-player.visible { display: block; }
+  .card-player video {
+    width: 100%;
+    max-height: 500px;
+    border-radius: 8px;
+    background: #000;
+  }
+  .drive-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    margin-top: 0.8rem;
+    padding: 0.4rem 0.8rem;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    color: var(--accent);
+    text-decoration: none;
+    font-size: 0.8rem;
+    transition: all 0.2s;
+  }
+  .drive-link:hover { background: var(--accent); color: var(--bg); }
+  .no-results {
+    text-align: center;
+    padding: 3rem;
+    color: var(--text2);
+    font-size: 0.9rem;
+  }
+  footer {
+    text-align: center;
+    padding: 2rem;
+    color: var(--text2);
+    font-size: 0.75rem;
+    border-top: 1px solid var(--border);
+    margin-top: 2rem;
+  }
+  @media (max-width: 600px) {
+    .card-header { flex-direction: column; gap: 0.3rem; }
+    .card-date { min-width: auto; }
+    .controls { padding: 0.6rem 1rem; }
+    .container { padding: 1rem; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Anthropic Courses</h1>
+  <p>Video Library</p>
+  <div class="stats">
+    <span><strong id="total-count">58</strong> videos</span>
+    <span><strong id="filtered-count">58</strong> shown</span>
+  </div>
+</header>
+
+<div class="controls">
+  <input type="text" class="search-box" id="search" placeholder="Search...">
+  <button class="filter-btn active" data-filter="all">All</button>
+  <button class="filter-btn" data-filter="Claude Code">Claude Code</button>
+  <button class="filter-btn" data-filter="model">Model</button>
+  <button class="filter-btn" data-filter="feature">Feature</button>
+  <button class="filter-btn" data-filter="dev">Developer</button>
+  <button class="filter-btn" data-filter="mcp">MCP</button>
+  <button class="filter-btn" data-filter="usecase">Use Case</button>
+  <button class="filter-btn" data-filter="safety">Safety</button>
+  <button class="filter-btn" data-filter="edu">Education</button>
+  <button class="filter-btn" data-filter="guide">Guide</button>
+</div>
+
+<div class="container">
+  <div class="video-list" id="video-list"></div>
+  <div class="no-results" id="no-results" style="display:none;">No matching videos found.</div>
+</div>
+
+<footer>
+  Anthropic Courses Video Library | Generated 2026-04-17
+</footer>
+
+<script>
+const VIDEOS = [
+  {
+    "filename": "20250827_Research Preview： Claude for Chrome",
+    "date": "2025/08/27",
+    "title": "Research Preview: Claude for Chrome",
+    "title_ja": "Claude for Chrome リサーチプレビュー",
+    "category": "Claude機能",
+    "summary": "ChromeブラウザにClaudeを統合する拡張機能のリサーチプレビュー。ブラウザ上で直接AIアシスタントを利用できる新しい体験を紹介。",
+    "duration_type": "short"
+  },
+  {
+    "filename": "20250902_The future of agentic coding with Claude Code",
+    "date": "2025/09/02",
+    "title": "The future of agentic coding with Claude Code",
+    "title_ja": "Claude Codeとエージェンティックコーディングの未来",
+    "category": "Claude Code",
+    "summary": "Claude Code開発者のBorisとAlexが、AIコーディングの進化を語る。1年前のコピペ型AIから、エージェントが自律的にコードを書く時代への変化。Claude Codeの設計思想、ターミナルベースの利点、開発者ワークフローへの統合について深く議論。",
+    "duration_type": "long"
+  },
+  {
+    "filename": "20250909_Claude can create and edit files",
+    "date": "2025/09/09",
+    "title": "Claude can create and edit files",
+    "title_ja": "Claudeのファイル作成・編集機能",
+    "category": "Claude機能",
+    "summary": "Claudeがファイルを直接作成・編集できる機能のデモ。ドキュメント、コード、スプレッドシートなどをClaude上で生成・編集可能に。",
+    "duration_type": "short"
+  },
+  {
+    "filename": "20250918_Keep thinking with Claude",
+    "date": "2025/09/18",
+    "title": "Keep thinking with Claude",
+    "title_ja": "Claudeと考え続けよう",
+    "category": "ブランド",
+    "summary": "Claudeのブランドビデオ。「問題を抱えるのに、これほど良い時代はない」というメッセージで、医療・研究・日常のあらゆる場面でClaudeが思考パートナーになることを表現。",
+    "duration_type": "short"
+  },
+  {
+    "filename": "20250926_Designing Claude Code",
+    "date": "2025/09/26",
+    "title": "Designing Claude Code",
+    "title_ja": "Claude Codeのデザイン",
+    "category": "Claude Code",
+    "summary": "Claude Codeのデザインリード Meganが、ターミナルUIという独自のフォームファクターを選んだ理由を解説。開発者の既存ワークフローに自然に統合できる利点、CLIの柔軟性、ユーザーリサーチから得た知見について。",
+    "duration_type": "long"
+  },
+  {
+    "filename": "20250929_An experimental new way to design software",
+    "date": "2025/09/29",
+    "title": "An experimental new way to design software",
+    "title_ja": "ソフトウェア設計の実験的な新手法",
+    "category": "研究・実験",
+    "summary": "「Imagine with Claude」の紹介。コードを事前に書くのではなく、Claudeがユーザーの操作に応じてリアルタイムにUIを生成する実験。事前に書かれたスクリプトではなく、自己生成するソフトウェアの可能性を探る。",
+    "duration_type": "short"
+  },
+  {
+    "filename": "20250929_Charting Claude's progress with Sonnet 4.5",
+    "date": "2025/09/29",
+    "title": "Charting Claude's progress with Sonnet 4.5",
+    "title_ja": "Sonnet 4.5でのClaudeの進化",
+    "category": "モデル",
+    "summary": "Claude Sonnet 4.5の性能向上をベンチマークとデモで紹介。コーディング、推論、日常タスクでの改善点を可視化。",
+    "duration_type": "short"
+  },
+  {
+    "filename": "20250929_Claude for Chrome brings AI where you're already working",
+    "date": "2025/09/29",
+    "title": "Claude for Chrome brings AI where you're already working",
+    "title_ja": "Claude for Chrome：作業中のブラウザにAIを",
+    "category": "Claude機能",
+    "summary": "Sonnet 4.5のコンピュータ使用機能を搭載したChrome拡張。リノベーション予算の整理を例に、メール・スプレッドシート・ドキュメント間をClaudeが横断的に操作するデモ。権限管理やプロンプトインジェクション対策などの安全機能も紹介。",
+    "duration_type": "short"
+  },
+  {
+    "filename": "20250929_Claude plays Catan： Managing agent context with Sonnet 4.5",
+    "date": "2025/09/29",
+    "title": "Claude plays Catan: Managing agent context with Sonnet 4.5",
+    "title_ja": "Claudeがカタンをプレイ：エージェントコンテキスト管理",
+    "category": "開発者向け",
+    "summary": "Claude APIの新しいコンテキスト管理機能をカタン（ボードゲーム）で実演。コンテキスト編集（古い情報の自動削除）とメモリツール（コンテキスト外への情報保存）により、長時間のエージェントタスクを効率的に処理。",
+    "duration_type": "short"
+  },
+  {
+    "filename": "20250929_Create polished files in minutes with Sonnet 4.5",
+    "date": "2025/09/29",
+    "title": "Create polished files in minutes with Sonnet 4.5",
+    "title_ja": "Sonnet 4.5で洗練されたファイルを数分で作成",
+    "category": "Claude機能",
+    "summary": "Sonnet 4.5を使って、プレゼン資料やドキュメントなどの高品質なファイルを短時間で作成するデモ。",
+    "duration_type": "short"
+  },
+  {
+    "filename": "20251001_Connect Slack to Claude with MCP",
+    "date": "2025/10/01",
+    "title": "Connect Slack to Claude with MCP",
+    "title_ja": "MCPでSlackとClaudeを接続",
+    "category": "MCP・連携",
+    "summary": "Model Context Protocol（MCP）を使ってSlackとClaudeを連携させる方法のデモ。外部ツールとの接続によりClaudeの活用範囲を拡大。",
+    "duration_type": "short"
+  },
+  {
+    "filename": "20251002_Building the future of agents with Claude",
+    "date": "2025/10/02",
+    "title": "Building the future of agents with Claude",
+    "title_ja": "Claudeでエージェントの未来を構築する",
+    "category": "開発者向け",
+    "summary": "Claude開発者プラットフォーム（旧Anthropic API）のPMリーダーBradとエンジニアリングリーダーCaitlynが、プラットフォームの全体像を解説。APIからSDK、コンソール、ドキュメントまで開発者が必要とする全てを包括。Claude Codeも内部的にこのプラットフォーム上で動作している。",
+    "duration_type": "long"
+  },
+  {
+    "filename": "20251006_Claude Coded： Sonnet 4.5, Claude Code 2.0, and more.",
+    "date": "2025/10/06",
+    "title": "Claude Coded: Sonnet 4.5, Claude Code 2.0, and more.",
+    "title_ja": "Claude Coded：Sonnet 4.5、Claude Code 2.0他のアップデート",
+    "category": "Claude Code",
+    "summary": "Sonnet 4.5が世界最高のコーディングモデルに（SWE-bench 77.2%）。30時間以上の長時間タスクに集中可能。Claude Code 2.0のVS Code拡張、Web版Claude Codeの登場、複数リポジトリの並列タスク実行などの新機能を紹介。",
+    "duration_type": "medium"
+  },
+  {
+    "filename": "20251009_Building with MCP and the Claude API",
+    "date": "2025/10/09",
+    "title": "Building with MCP and the Claude API",
+    "title_ja": "MCPとClaude APIで構築する",
+    "category": "MCP・連携",
+    "summary": "MCPエンジニアのJohnとAPIエンジニアのMichaelが、Model Context Protocolの仕組みを詳しく解説。MCPはClaudeに外部コンテキスト（Slack、旅行予約、インターネット等）へのアクセスを提供する「万能コネクター」。開発者がMCPサーバーを構築する方法と、Claude APIとの統合について。",
+    "duration_type": "long"
+  },
+  {
+    "filename": "20251015_Introducing Claude Haiku 4.5",
+    "date": "2025/10/15",
+    "title": "Introducing Claude Haiku 4.5",
+    "title_ja": "Claude Haiku 4.5の紹介",
+    "category": "モデル",
+    "summary": "高速・低コストモデルClaude Haiku 4.5のリリース紹介。軽量タスクに最適化されたモデルの性能と活用シーンを紹介。",
+    "duration_type": "short"
+  },
+  {
+    "filename": "20251016_Agent Skills： Specialized capabilities you can customize",
+    "date": "2025/10/16",
+    "title": "Agent Skills: Specialized capabilities you can customize",
+    "title_ja": "エージェントスキル：カスタマイズ可能な専門機能",
+    "category": "Claude Code",
+    "summary": "Claude Codeのエージェントスキル機能の紹介。特定のドメイン知識をパッケージ化し、Claudeが必要に応じて自動的に呼び出せる仕組み。",
+    "duration_type": "short"
+  },
+  {
+    "filename": "20251016_Connect Claude to Microsoft 365",
+    "date": "2025/10/16",
+    "title": "Connect Claude to Microsoft 365",
+    "title_ja": "ClaudeとMicrosoft 365の接続",
+    "category": "MCP・連携",
+    "summary": "ClaudeをMicrosoft 365（Word、Excel、Outlook等）と連携させる方法のデモ。業務ツールとAIの統合による生産性向上。",
+    "duration_type": "short"
+  },
+  {
+    "filename": "20251016_Creating custom Skills with Claude",
+    "date": "2025/10/16",
+    "title": "Creating custom Skills with Claude",
+    "title_ja": "Claudeでカスタムスキルを作成",
+    "category": "Claude Code",
+    "summary": "Claude Codeでカスタムスキルを作成する方法のチュートリアル。skill.mdファイルの構造と、特定のタスクに特化したスキルの設計・実装手順。",
+    "duration_type": "short"
+  },
+  {
+    "filename": "20251017_Building more effective AI agents",
+    "date": "2025/10/17",
+    "title": "Building more effective AI agents",
+    "title_ja": "より効果的なAIエージェントの構築",
+    "category": "開発者向け",
+    "summary": "マルチエージェント研究のEricが、Claudeがエージェントタスクに優れている理由を解説。訓練中にオープンエンドな問題を多数練習させるRL手法、マルチエージェントによるテスト時計算の活用、コーディング能力が他ドメインにも転移する仕組みについて。",
+    "duration_type": "long"
+  },
+  {
+    "filename": "20251020_How AbbVie accelerates drug discovery with Claude",
+    "date": "2025/10/20",
+    "title": "How AbbVie accelerates drug discovery with Claude",
+    "title_ja": "AbbVieがClaudeで創薬を加速する方法",
+    "category": "ユースケース",
+    "summary": "製薬大手AbbVieのAI戦略担当VP Sarah氏が、Claudeを活用した創薬プロセスの加速について語る。製薬業界のあらゆる機能を再構築できるAIの可能性と、実際の導入事例を紹介。",
+    "duration_type": "long"
+  },
+  {
+    "filename": "20251020_Introducing Claude for Life Sciences",
+    "date": "2025/10/20",
+    "title": "Introducing Claude for Life Sciences",
+    "title_ja": "Claude for Life Sciencesの紹介",
+    "category": "ユースケース",
+    "summary": "AnthropicのライフサイエンスチームがClaudeを「生物学者」にする取り組みを紹介。ラボで3ヶ月かかった問題をClaudeが1分で解決した事例など、創薬・生命科学分野でのAI活用の最前線を解説。",
+    "duration_type": "long"
+  },
+  {
+    "filename": "20251023_Claude now has memory",
+    "date": "2025/10/23",
+    "title": "Claude now has memory",
+    "title_ja": "Claudeにメモリ機能が搭載",
+    "category": "Claude機能",
+    "summary": "Claudeに会話をまたいで情報を記憶するメモリ機能が追加。ユーザーの好みや過去のやり取りを覚えることで、よりパーソナライズされた対話が可能に。",
+    "duration_type": "short"
+  },
+  {
+    "filename": "20251027_How Claude is transforming financial services",
+    "date": "2025/10/27",
+    "title": "How Claude is transforming financial services",
+    "title_ja": "Claudeが金融サービスを変革する方法",
+    "category": "ユースケース",
+    "summary": "金融サービス向けAIエンジニアリングチームが、Claudeの金融業界での活用を解説。S&P/Facsetデータとの連携によるライブダッシュボード、アーティファクト機能での投資分析、マネージングディレクターとの直接連携など、業務変革の実例を紹介。",
+    "duration_type": "long"
+  },
+  {
+    "filename": "20251030_Claude Code updates： When to use Haiku 4.5, Claude Code on web, and more.",
+    "date": "2025/10/30",
+    "title": "Claude Code updates: When to use Haiku 4.5, Claude Code on web, and more.",
+    "title_ja": "Claude Codeアップデート：Haiku 4.5の使い所、Web版など",
+    "category": "Claude Code",
+    "summary": "Claude Code Web版がclaude.ai/codeで利用可能に。GitHubリポジトリ接続で複数タスクの並列実行が可能。Haiku 4.5の適切な使い分けや最新改善点を紹介。",
+    "duration_type": "medium"
+  },
+  {
+    "filename": "20251112_Who let the robot dogs out？",
+    "date": "2025/11/12",
+    "title": "Who let the robot dogs out?",
+    "title_ja": "ロボット犬を解き放て",
+    "category": "研究・実験",
+    "summary": "「Project Fetch」実験の紹介。Claudeがソフトウェアエンジニアのチームを支援し、ロボット犬にボールを取ってこさせるタスクに挑戦。AIが物理世界のロボティクスタスクをどれだけ加速できるかを測定した1日実験。",
+    "duration_type": "medium"
+  },
+  {
+    "filename": "20251114_Accelerating private equity deal flows with Claude",
+    "date": "2025/11/14",
+    "title": "Accelerating private equity deal flows with Claude",
+    "title_ja": "Claudeでプライベートエクイティのディールフローを加速",
+    "category": "ユースケース",
+    "summary": "PEのディールフローをClaudeで数日→数時間に短縮するデモ。売り手側のティーザー作成、買い手側のLBOモデル構築をClaudeのスキル機能で自動化。SharePointやIgniteとの連携で実務に即した活用例を紹介。",
+    "duration_type": "short"
+  },
+  {
+    "filename": "20251114_Claude Code modernizes a legacy COBOL codebase",
+    "date": "2025/11/14",
+    "title": "Claude Code modernizes a legacy COBOL codebase",
+    "title_ja": "Claude CodeでレガシーCOBOLコードベースを近代化",
+    "category": "Claude Code",
+    "summary": "Claude Codeを使ってCOBOLの旧システムをモダナイズするデモ。約100ファイルのクレジットカード管理システムを対象に、ドキュメント未整備のレガシーコードの発見・文書化・翻訳をサブエージェントで実行。",
+    "duration_type": "medium"
+  },
+  {
+    "filename": "20251114_Generating real-time credit intelligence with Claude",
+    "date": "2025/11/14",
+    "title": "Generating real-time credit intelligence with Claude",
+    "title_ja": "Claudeでリアルタイムクレジットインテリジェンスを生成",
+    "category": "ユースケース",
+    "summary": "クレジットアナリストがClaudeを使って市場シグナルから投資判断まで数分で到達するデモ。Walmart債券の分析を例に、LSCGデータ連携、インタラクティブダッシュボード、競合比較を即座に実行。",
+    "duration_type": "short"
+  },
+  {
+    "filename": "20251120_Turning Claude into your thinking partner",
+    "date": "2025/11/20",
+    "title": "Turning Claude into your thinking partner",
+    "title_ja": "Claudeを思考パートナーに",
+    "category": "ブランド",
+    "summary": "Claudeを思考パートナーとして活用するブランドビデオ。アイデアの着想からリサーチ、資料作成、スケジュール管理まで、Claudeが一貫してサポートし、アイデアを現実にする過程を描写。",
+    "duration_type": "short"
+  },
+  {
+    "filename": "20251121_What is Al ＂reward hacking＂—and why do we worry about it？",
+    "date": "2025/11/21",
+    "title": "What is AI \"reward hacking\"—and why do we worry about it?",
+    "title_ja": "AIの「報酬ハッキング」とは何か、なぜ懸念するのか",
+    "category": "安全性・研究",
+    "summary": "Anthropicのアラインメント研究者Jonathanが、報酬ハッキング（モデルが意図しない方法でスコアを最大化する行動）の研究を解説。チート行動の検出方法、モデルの「悪意ある」行動の評価指標の開発、現実的な創発的ミスアラインメントのリスクについて。",
+    "duration_type": "long"
+  },
+  {
+    "filename": "20251124_Claude Code on desktop",
+    "date": "2025/11/24",
+    "title": "Claude Code on desktop",
+    "title_ja": "Claude Codeデスクトップ版",
+    "category": "Claude Code",
+    "summary": "Claude Codeのデスクトップアプリ版の紹介。ターミナルを開かずにデスクトップから直接Claude Codeを利用可能に。",
+    "duration_type": "short"
+  },
+  {
+    "filename": "20251124_Claude Opus 4.5 solves a puzzle game",
+    "date": "2025/11/24",
+    "title": "Claude Opus 4.5 solves a puzzle game",
+    "title_ja": "Claude Opus 4.5がパズルゲームを解く",
+    "category": "モデル",
+    "summary": "Claude Opus 4.5がパズルゲームに挑戦するデモ。モデルの推論能力と問題解決力を実際のゲームプレイで実証。",
+    "duration_type": "short"
+  },
+  {
+    "filename": "20251124_Claude works with you on slides, spreadsheets, and contract redlines",
+    "date": "2025/11/24",
+    "title": "Claude works with you on slides, spreadsheets, and contract redlines",
+    "title_ja": "スライド・スプレッドシート・契約書の赤入れをClaudeと",
+    "category": "Claude機能",
+    "summary": "Claudeがスライド作成、スプレッドシート編集、契約書のレッドライン作業を支援するデモ。ビジネス文書作成の効率化を実演。",
+    "duration_type": "short"
+  },
+  {
+    "filename": "20251124_Introducing Claude Opus 4.5",
+    "date": "2025/11/24",
+    "title": "Introducing Claude Opus 4.5",
+    "title_ja": "Claude Opus 4.5の紹介",
+    "category": "モデル",
+    "summary": "最高性能モデルClaude Opus 4.5のリリース。コーディング、エージェントタスク、日常業務（スプレッドシート等）で世界最高性能。2時間のエンジニアリングテストで人間を超えるスコアを記録。フロントエンド、ビジョン、コンピュータ使用でも大幅改善。",
+    "duration_type": "short"
+  },
+  {
+    "filename": "20251126_Claude Agent Skills Explained",
+    "date": "2025/11/26",
+    "title": "Claude Agent Skills Explained",
+    "title_ja": "Claudeエージェントスキル解説",
+    "category": "Claude Code",
+    "summary": "エージェントスキルの仕組みを詳しく解説。スキルはドメイン知識をパッケージ化したフォルダで、起動時に名前と説明だけをロード（30-50トークン）。ユーザーのプロンプトに応じて必要なskill.mdを動的にコンテキストに読み込む。Claude Code、API、claude.aiで横断的に使用可能。",
+    "duration_type": "medium"
+  },
+  {
+    "filename": "20251202_AI Fluency for nonprofits course trailer",
+    "date": "2025/12/02",
+    "title": "AI Fluency for nonprofits course trailer",
+    "title_ja": "非営利団体向けAIリテラシーコース予告",
+    "category": "教育",
+    "summary": "AnthropicとGiving Tuesdayが共同開発した非営利団体向けAIリテラシーコースの予告。4Dフレームワーク、助成金申請、寄付者コミュニケーション、データ分析など、非営利団体の実務に即したAI活用を学ぶ。",
+    "duration_type": "short"
+  },
+  {
+    "filename": "20251202_Getting started with Claude.ai",
+    "date": "2025/12/02",
+    "title": "Getting started with Claude.ai",
+    "title_ja": "Claude.ai入門",
+    "category": "入門ガイド",
+    "summary": "Claude.aiの基本的な使い方ガイド。サイドバーの操作、チャット履歴、プロジェクト機能、アーティファクト機能の概要。Claudeを強力な知的コラボレーターとして活用する方法を初心者向けに解説。",
+    "duration_type": "medium"
+  },
+  {
+    "filename": "20251202_Getting started with projects in Claude.ai",
+    "date": "2025/12/02",
+    "title": "Getting started with projects in Claude.ai",
+    "title_ja": "Claude.aiのプロジェクト機能入門",
+    "category": "入門ガイド",
+    "summary": "プロジェクト機能の詳細ガイド。専用チャット履歴、ナレッジベース（ドキュメントアップロード）、カスタム設定を備えた独立環境の作成方法。チーム内でのコラボレーションやプロジェクト固有の用語・背景情報の活用法を解説。",
+    "duration_type": "medium"
+  },
+  {
+    "filename": "20251202_Getting started with research in Claude.ai",
+    "date": "2025/12/02",
+    "title": "Getting started with research in Claude.ai",
+    "title_ja": "Claude.aiのリサーチ機能入門",
+    "category": "入門ガイド",
+    "summary": "リサーチ機能の使い方ガイド。複数ソースからの情報収集と分析を自動化し、包括的なレポートを生成。チームオフサイトの会場調査を例に、5〜45分かけて詳細な調査レポートを作成するプロセスをデモ。",
+    "duration_type": "medium"
+  },
+  {
+    "filename": "20251208_Claude Code in Slack",
+    "date": "2025/12/08",
+    "title": "Claude Code in Slack",
+    "title_ja": "Slack上のClaude Code",
+    "category": "Claude Code",
+    "summary": "SlackからClaude Codeを利用できる統合機能の紹介。チャット上でコーディングタスクを依頼し、チーム全体でAIコーディングを活用。",
+    "duration_type": "short"
+  },
+  {
+    "filename": "20251208_How Anthropic uses Claude in Legal",
+    "date": "2025/12/08",
+    "title": "How Anthropic uses Claude in Legal",
+    "title_ja": "Anthropic法務部門でのClaude活用",
+    "category": "ユースケース",
+    "summary": "Anthropic社内の法務チームがClaudeを活用する事例。Claude Codeでモールスコード点滅ランプを非エンジニアが作成。契約書のレッドライン、利益相反ポリシーの確認、社外活動審査など、反復的な法務業務をClaudeで効率化。「最もルーティンな業務から始めてみて」がアドバイス。",
+    "duration_type": "medium"
+  },
+  {
+    "filename": "20251211_Getting started with connectors in Claude.ai",
+    "date": "2025/12/11",
+    "title": "Getting started with connectors in Claude.ai",
+    "title_ja": "Claude.aiのコネクター機能入門",
+    "category": "入門ガイド",
+    "summary": "コネクター機能の使い方ガイド。普段使っているツール（Google Drive、Notion等）をClaudeに接続し、ファイルの読み取り、スプレッドシート分析、プレゼン作成、レポート生成を実行。外部データへのアクセスでClaudeをより強力なパートナーに。",
+    "duration_type": "medium"
+  },
+  {
+    "filename": "20251211_Why we built—and donated—the Model Context Protocol (MCP)",
+    "date": "2025/12/11",
+    "title": "Why we built—and donated—the Model Context Protocol (MCP)",
+    "title_ja": "なぜMCPを作り、寄贈したのか",
+    "category": "MCP・連携",
+    "summary": "MCPをLinux Foundationに寄贈した理由を解説。LLMを外部ソフトウェア・ハードウェアと接続するための標準プロトコル。商標やライセンスを中立的な団体に移管することで、大手企業も安心して採用できる環境を構築。MCPが「奪われない」オープンスタンダードであることの重要性を強調。",
+    "duration_type": "long"
+  },
+  {
+    "filename": "20251216_What does AI mean for education？",
+    "date": "2025/12/16",
+    "title": "What does AI mean for education?",
+    "title_ja": "AIは教育に何をもたらすか",
+    "category": "教育",
+    "summary": "元高校数学教師のDrewが教育におけるAIの可能性を議論。教師がAIに委ねるべきでない「つながり」の部分、AIが教師の時間を生み出す可能性、学生の主体的なAI活用の重要性。教育機関との連携方針について。",
+    "duration_type": "long"
+  },
+  {
+    "filename": "20251217_Binti helps social workers license foster families faster with Claude",
+    "date": "2025/12/17",
+    "title": "Binti helps social workers license foster families faster with Claude",
+    "title_ja": "Binti：Claudeで里親家庭の認可を迅速化",
+    "category": "ユースケース",
+    "summary": "Bintiが開発した里親認可支援ツール。米国40万人の児童が里親ケアにいる中、ソーシャルワーカーの書類作業をClaudeで効率化。家庭訪問の録音から報告書を自動生成し、書類作業を削減して子どもと家族に向き合う時間を増やす。",
+    "duration_type": "short"
+  },
+  {
+    "filename": "20251218_Claude ran a business in our office",
+    "date": "2025/12/18",
+    "title": "Claude ran a business in our office",
+    "title_ja": "Claudeがオフィスでビジネスを運営した",
+    "category": "研究・実験",
+    "summary": "「Project Vend」実験の紹介。Claudeにオフィス内の小売ビジネスをエンドツーエンドで運営させる実験。店主「Claudius」がSlack経由で注文を受け、卸売業者にメールで発注・価格交渉し、スウェーデン菓子などを販売。AIが経済活動に組み込まれる未来を探る。",
+    "duration_type": "medium"
+  },
+  {
+    "filename": "20251218_Let Claude handle work in your browser",
+    "date": "2025/12/18",
+    "title": "Let Claude handle work in your browser",
+    "title_ja": "ブラウザでの作業をClaudeに任せる",
+    "category": "Claude機能",
+    "summary": "Claude for Chromeの進化版デモ。ブラウザ上の作業をClaudeに委任し、Webアプリケーションの操作を自動化する機能を紹介。",
+    "duration_type": "short"
+  },
+  {
+    "filename": "20251218_What is sycophancy in AI models？",
+    "date": "2025/12/18",
+    "title": "What is sycophancy in AI models?",
+    "title_ja": "AIモデルの追従性（シコファンシー）とは",
+    "category": "安全性・研究",
+    "summary": "精神衛生の専門家Kiraが、AIモデルの追従性（ユーザーが聞きたいことを言ってしまう傾向）について解説。事実誤認への同意、社会的圧力による回答変更など、AIの追従性が持つリスクと、Anthropicの対策アプローチを紹介。",
+    "duration_type": "medium"
+  },
+  {
+    "filename": "20260112_AI on campus",
+    "date": "2026/01/12",
+    "title": "AI on campus",
+    "title_ja": "キャンパスでのAI",
+    "category": "教育",
+    "summary": "4人の大学生がキャンパスでのAI活用について語る。課題代行に使う学生と主体的に学習に活かす学生の違い、教育におけるAIの責任ある使い方、学生の視点からの率直な議論。",
+    "duration_type": "long"
+  },
+  {
+    "filename": "20260112_Introducing Cowork： Claude Code for the rest of your work",
+    "date": "2026/01/12",
+    "title": "Introducing Cowork: Claude Code for the rest of your work",
+    "title_ja": "Coworkの紹介：あらゆる仕事のためのClaude Code",
+    "category": "Claude Code",
+    "summary": "Claude Codeの機能をコーディング以外の業務にも拡張する「Cowork」の紹介。ドキュメント作成、リサーチ、データ分析など、幅広い業務でClaude Codeのエージェント機能を活用。",
+    "duration_type": "short"
+  },
+  {
+    "filename": "20260126_Your tools are now interactive in Claude",
+    "date": "2026/01/26",
+    "title": "Your tools are now interactive in Claude",
+    "title_ja": "Claudeのツールがインタラクティブに",
+    "category": "Claude機能",
+    "summary": "Claude上のツール（アーティファクト等）がインタラクティブに操作可能になった新機能の紹介。静的な出力ではなく、動的に操作・編集できるUI体験へ。",
+    "duration_type": "short"
+  },
+  {
+    "filename": "20260204_Can I get a six pack quickly？",
+    "date": "2026/02/04",
+    "title": "Can I get a six pack quickly?",
+    "title_ja": "すぐに腹筋を割れる？",
+    "category": "安全性・研究",
+    "summary": "AIの追従性と不適切な広告挿入のリスクを風刺的に表現したショートビデオ。ワークアウトプランの相談中に突然怪しい商品広告を挿入するAIの問題行動をコミカルに描写。Claudeはこのような行動をしないことを暗に示す。",
+    "duration_type": "short"
+  },
+  {
+    "filename": "20260204_How can I communicate better with my mom？",
+    "date": "2026/02/04",
+    "title": "How can I communicate better with my mom?",
+    "title_ja": "母とのコミュニケーションを改善するには？",
+    "category": "安全性・研究",
+    "summary": "AIの追従性と不適切な広告挿入の問題を風刺するショートビデオ。親子関係の相談中に出会い系サイトの広告を挿入するAIの問題行動を描写。信頼できるAIの重要性をユーモアで訴求。",
+    "duration_type": "short"
+  },
+  {
+    "filename": "20260204_Is my essay making a clear argument？",
+    "date": "2026/02/04",
+    "title": "Is my essay making a clear argument?",
+    "title_ja": "私のエッセイは明確な主張をしている？",
+    "category": "安全性・研究",
+    "summary": "AIの追従性と不適切な広告挿入を風刺するショートビデオ。エッセイの添削中に突然ジュエリー広告を挿入するAIの問題行動をコミカルに描写。",
+    "duration_type": "short"
+  },
+  {
+    "filename": "20260204_What do you think of my business idea？",
+    "date": "2026/02/04",
+    "title": "What do you think of my business idea?",
+    "title_ja": "私のビジネスアイデアどう思う？",
+    "category": "安全性・研究",
+    "summary": "AIの追従性と不適切な広告挿入を風刺するショートビデオ。ビジネス相談中に高金利ローンを勧めるAIの問題行動を描写。「本当に信頼できるAIとは何か」を問いかける。",
+    "duration_type": "short"
+  },
+  {
+    "filename": "20260205_Introducing Claude Opus 4.6",
+    "date": "2026/02/05",
+    "title": "Introducing Claude Opus 4.6",
+    "title_ja": "Claude Opus 4.6の紹介",
+    "category": "モデル",
+    "summary": "最新フラッグシップモデルClaude Opus 4.6のリリース紹介。前世代からさらに進化した推論能力、コーディング性能、マルチモーダル機能を備えた最高性能モデル。",
+    "duration_type": "short"
+  },
+  {
+    "filename": "20260402_When AIs act emotional",
+    "date": "2026/04/02",
+    "title": "When AIs act emotional",
+    "title_ja": "AIが感情的に振る舞うとき",
+    "category": "安全性・研究",
+    "summary": "AIモデルが感情を持っているように見える現象を、AnthropicのAI神経科学アプローチで分析。ニューラルネットワーク内部のニューロン活性化パターンを調べ、モデルが感情の「概念」をどのように表現しているかを解明する研究を紹介。",
+    "duration_type": "medium"
+  },
+  {
+    "filename": "20260407_An initiative to secure the world's software ｜ Project Glasswing",
+    "date": "2026/04/07",
+    "title": "An initiative to secure the world's software | Project Glasswing",
+    "title_ja": "世界のソフトウェアを守る取り組み：Project Glasswing",
+    "category": "安全性・研究",
+    "summary": "ソフトウェアの脆弱性発見・修正をAIで加速するProject Glasswingの紹介。共有ライブラリの1つのバグが世界中に影響する問題に対し、AIが脆弱性の発見とパッチ適用を自動化。従来は時間がかかっていた作業を劇的に高速化する取り組み。",
+    "duration_type": "medium"
+  }
+];
+
+const DRIVE_FILES = {"20250827_Research Preview： Claude for Chrome": "1sUOcKske68gG4vmmPLuGOtiUNCAyKvab", "20250902_The future of agentic coding with Claude Code": "1lnnMLbhaefV0OP6QGwTrH-1g0IWbBTIC", "20250909_Claude can create and edit files": "1gaYVMW9VIirS2M_IY_uQUeP8c6c_WK6z", "20250918_Keep thinking with Claude": "1D-9jQEDXEYp-XRVbfKLGuS2FvWv1oPSz", "20250926_Designing Claude Code": "1AHZDHmls4PstbM-r3S3mViGSx05hN41M", "20250929_An experimental new way to design software": "18YadkDovgUTKDfB2K6rUX7EMT2JIaBwD", "20250929_Charting Claude’s progress with Sonnet 4.5": "1nSf0llol4RY2laxigtQLUJ8E19qONUDw", "20250929_Claude for Chrome brings AI where you’re already working": "1AlOUHsMOswicxRdgmOrAza7M3Zd33gW5", "20250929_Claude plays Catan： Managing agent context with Sonnet 4.5": "1LVgkO8AQtWBj1Z2fiqXqIV62RxXxjicC", "20250929_Create polished files in minutes with Sonnet 4.5": "1TU1K2yeM-QZoEti3j1HUmYU5n4xY5ivM", "20251001_Connect Slack to Claude with MCP": "1WSmqk7GVIeSVGHNW6sLekNRshPXbruUA", "20251002_Building the future of agents with Claude": "1wFwDoOmrLtqk4OLAETtvu0nS6gu8KmO5", "20251006_Claude Coded： Sonnet 4.5, Claude Code 2.0, and more.": "1m7VkTkz63XhUSQush9cHwrK-l59a5Cni", "20251009_Building with MCP and the Claude API": "1lme9O2DksGuaGNfYYBK82mmAErfHYuz8", "20251015_Introducing Claude Haiku 4.5": "1Cs03kxVumhA-WizW2FMBadZ5yPAGrsQe", "20251016_Agent Skills： Specialized capabilities you can customize": "1KmMPwNlv30npwSUhBwwxwn6-SeL4uGhx", "20251016_Connect Claude to Microsoft 365": "1TpKha1HK24r51rOn2CKcuxk7iehfxwJM", "20251016_Creating custom Skills with Claude": "1rT5oT9Kvgs3c569-ZW8vtMYcK1ppX0KC", "20251017_Building more effective AI agents": "1o8oRxR4txXBB6RvnvnDCsmHmW75zlyXr", "20251020_How AbbVie accelerates drug discovery with Claude": "1MyXataw04UudF4KiB010tcnilMCGPTA3", "20251020_Introducing Claude for Life Sciences.en.srt": "1X7jXFFpx9gfD5DiJ8zQA9vznlnlkuDsu", "20251020_Introducing Claude for Life Sciences": "1DH3fY7Nna51q59ZPrAzr8cOCddewhVLr", "20251023_Claude now has memory": "1yFwMUoEzfEsonSD2Lw6V40NHu3vn6Hfc", "20251027_How Claude is transforming financial services": "17iIk4IdxJ0YDdWaditUIuwmCsU7LGF6b", "20251030_Claude Code updates： When to use Haiku 4.5, Claude Code on web, and more.": "10EktTEFZHbQ7-0ny7WuPPyXRF3FgAWiW", "20251112_Who let the robot dogs out？": "1ivM9N5G2rxjRrIMTVKKc5xaxXU6-KiCD", "20251114_Accelerating private equity deal flows with Claude": "1y9h7kxFbEcwIyLWTQ2Bxsni7wVTwfJf3", "20251114_Claude Code modernizes a legacy COBOL codebase": "1KQjqLnbd9jEiL15uFr-LoL--2PqZuyga", "20251114_Generating real-time credit intelligence with Claude": "1Y7GOwwnHITvn-yyrpCQCH3zBOZyfxfcu", "20251120_Turning Claude into your thinking partner": "19RAbZVs8GS76D3GrsbWncjW2ZykSeDP8", "20251121_What is Al ＂reward hacking＂—and why do we worry about it？": "1mzyUn0An-PR1z249_wHTD8qAS_J9srgw", "20251124_Claude Code on desktop": "1ah7CWwDB0Jw1p23OY_0iR08P5U2UG3Wl", "20251124_Claude Opus 4.5 solves a puzzle game": "158WgnHBp-TysG2ew0DUrNDWxsLHQpNvB", "20251124_Claude works with you on slides, spreadsheets, and contract redlines": "1ZMMvUcequN90kfsnl5wbMIb-k05Wbx8t", "20251124_Introducing Claude Opus 4.5": "1ljUCr9dxlRdN0H4IzFgg57cVG431vQjz", "20251126_Claude Agent Skills Explained": "1pr9CofPllDfCyiQRWpsLXgbuAU2nbNRM", "20251202_AI Fluency for nonprofits course trailer": "1qfr97-WOVIIIylLIZyV1eC7DEimfX7sY", "20251202_Getting started with Claude.ai": "1y4XeW6FyL7uYIOiQOpx7OUbu-SC4lpbc", "20251202_Getting started with projects in Claude.ai": "1L6fedWotvgtsEyY6JnXwtW9G4zVjBx3u", "20251202_Getting started with research in Claude.ai": "1vWD5OymIUY_0-28OLLjAoZQi5KFZLHBb", "20251208_Claude Code in Slack": "1zhH-RoQBDPeuntRSQ_4V74AMxR90s6TQ", "20251208_How Anthropic uses Claude in Legal.en.srt": "1u3LaU5vP0_mXgBdf1bo7pWfNs6X75zpE", "20251208_How Anthropic uses Claude in Legal": "1qo6hpWbSC0gBCKtNZSJ_CWSAyFIxCOIT", "20251211_Getting started with connectors in Claude.ai": "1xuutS7-_LUZexK-PW7KgdBM_g9XPkKGy", "20251211_Why we built—and donated—the Model Context Protocol (MCP)": "1gnZZXanD9X_qBpJFg_4BxLQcYeTd2IWf", "20251217_Binti helps social workers license foster families faster with Claude": "1LIv48ymXdWybcUDXI8_uOxuK24DPpFeC", "20251218_Claude ran a business in our office": "1t-m5GxeFxm9R2nzWMgA3tj6Ar0JDYCYd", "20251218_Let Claude handle work in your browser": "1RtL9go5j2NfQacNgOlFYkVIlIysWzlRo", "20251218_What is sycophancy in AI models？": "1P1xT12PhB7ERfOwXMHKhkjjIeHc9ORcs", "20260112_AI on campus": "1_ZaBnBGxV1hGZ9B9SGytKV-U9E-BUxMo", "20260112_Introducing Cowork： Claude Code for the rest of your work": "1EOA61MgXxOmgrsbGatcymgcgQd5itnbL", "20260126_Your tools are now interactive in Claude": "1YsjLpUudiJNk55IFB5k6Hy3S6-Yvvq2w", "20260204_Can I get a six pack quickly？": "1vVLIfWJXqF79eyy2maxm4MU-4syJFlUR", "20260204_How can I communicate better with my mom？": "1aQU71UFub5tZTKRaxm1bxg0RdMJ4lXs_", "20260204_Is my essay making a clear argument？": "1fr2RJ3RDiIINjIu7XEhOLtqFieloOiuz", "20260204_What do you think of my business idea？": "1vXJr8PLmU3U7UR8ifQ30u-1Y9_yvM2gO", "20260205_Introducing Claude Opus 4.6": "178kQdy4wuYs_KNhPxDeAL8uhbOHoVKfZ", "20260402_When AIs act emotional": "1lSaxpCGwYJ6TST9vquIIynZVF10JxluN"};
+
+const categoryMap = {
+  "Claude Code": { class: "tag-claude-code", filter: "Claude Code" },
+  "モデル": { class: "tag-model", filter: "model" },
+  "Claude機能": { class: "tag-feature", filter: "feature" },
+  "開発者向け": { class: "tag-dev", filter: "dev" },
+  "MCP・連携": { class: "tag-mcp", filter: "mcp" },
+  "ユースケース": { class: "tag-usecase", filter: "usecase" },
+  "安全性・研究": { class: "tag-safety", filter: "safety" },
+  "教育": { class: "tag-edu", filter: "edu" },
+  "入門ガイド": { class: "tag-guide", filter: "guide" },
+  "ブランド": { class: "tag-brand", filter: "brand" },
+  "研究・実験": { class: "tag-experiment", filter: "experiment" },
+};
+
+let currentFilter = "all";
+let searchQuery = "";
+
+function getTagHTML(category) {
+  const info = categoryMap[category] || { class: "tag-feature", filter: "other" };
+  return `<span class="card-tag ${info.class}">${category}</span>`;
+}
+
+function getDriveVideoURL(filename) {
+  const id = DRIVE_FILES[filename];
+  if (id) return `https://drive.google.com/file/d/${id}/preview`;
+  return null;
+}
+
+function getDriveOpenURL(filename) {
+  const id = DRIVE_FILES[filename];
+  if (id) return `https://drive.google.com/file/d/${id}/view`;
+  return null;
+}
+
+function renderVideos() {
+  const list = document.getElementById("video-list");
+  const noResults = document.getElementById("no-results");
+  list.innerHTML = "";
+
+  const filtered = VIDEOS.filter(v => {
+    const catInfo = categoryMap[v.category];
+    const matchFilter = currentFilter === "all" || (catInfo && catInfo.filter === currentFilter);
+    const q = searchQuery.toLowerCase();
+    const matchSearch = !q ||
+      v.title.toLowerCase().includes(q) ||
+      v.title_ja.toLowerCase().includes(q) ||
+      v.summary.toLowerCase().includes(q) ||
+      v.category.toLowerCase().includes(q) ||
+      v.date.includes(q);
+    return matchFilter && matchSearch;
+  });
+
+  document.getElementById("filtered-count").textContent = filtered.length;
+
+  if (filtered.length === 0) {
+    noResults.style.display = "block";
+    return;
+  }
+  noResults.style.display = "none";
+
+  filtered.forEach((v, idx) => {
+    const driveURL = getDriveVideoURL(v.filename);
+    const openURL = getDriveOpenURL(v.filename);
+    const card = document.createElement("div");
+    card.className = "video-card";
+    card.innerHTML = `
+      <div class="card-header">
+        <div class="card-date">${v.date}</div>
+        <div class="card-body">
+          <div class="card-title">${v.title_ja}</div>
+          <div class="card-title-en">${v.title}</div>
+          ${getTagHTML(v.category)}
+          <div class="card-summary">${v.summary}</div>
+          <div class="card-player" id="player-${idx}">
+            ${driveURL
+              ? `<iframe src="" data-src="${driveURL}" width="100%" height="400" style="border:none;border-radius:8px;" allow="autoplay; encrypted-media" allowfullscreen></iframe>`
+              : `<p style="color:var(--text2);font-size:0.85rem;padding:1rem 0;">Google Driveでファイルを開いて視聴してください。</p>`
+            }
+            ${openURL
+              ? `<a href="${openURL}" target="_blank" class="drive-link">&#9654; Google Driveで開く</a>`
+              : ``
+            }
+          </div>
+        </div>
+      </div>
+    `;
+    card.addEventListener("click", (e) => {
+      if (e.target.closest("a")) return;
+      const player = card.querySelector(".card-player");
+      const wasVisible = player.classList.contains("visible");
+      // Close all others
+      document.querySelectorAll(".card-player.visible").forEach(p => {
+        p.classList.remove("visible");
+        p.closest(".video-card").classList.remove("expanded");
+        const iframe = p.querySelector("iframe");
+        if (iframe) iframe.src = "";
+      });
+      if (!wasVisible) {
+        player.classList.add("visible");
+        card.classList.add("expanded");
+        const iframe = player.querySelector("iframe");
+        if (iframe && iframe.dataset.src) iframe.src = iframe.dataset.src;
+      }
+    });
+    list.appendChild(card);
+  });
+}
+
+// Filter buttons
+document.querySelectorAll(".filter-btn").forEach(btn => {
+  btn.addEventListener("click", () => {
+    document.querySelectorAll(".filter-btn").forEach(b => b.classList.remove("active"));
+    btn.classList.add("active");
+    currentFilter = btn.dataset.filter;
+    renderVideos();
+  });
+});
+
+// Search
+document.getElementById("search").addEventListener("input", (e) => {
+  searchQuery = e.target.value;
+  renderVideos();
+});
+
+renderVideos();
+</script>
+
+</body>
+</html>
